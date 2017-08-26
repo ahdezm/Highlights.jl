@@ -13,12 +13,14 @@ module Format
 
 using DocStringExtensions
 
-import ..Highlights
+import ..Highlights: AbstractFormatter
 import ..Highlights.Compiler: Context
 import ..Highlights.Themes: RGB, Style, Theme
 import ..Highlights.Tokens
 
 export TokenIterator, render
+
+immutable DefaultFormatter <: AbstractFormatter end
 
 """
 The `render` function is used to define custom output formats for tokenised source code.
@@ -39,17 +41,19 @@ function to support new output formats.
 """
 function render end
 
+render(io::IO, mime::MIME, x) = render(io, mime, DefaultFormatter(), x)
+
 # RGB colours.
 
-render(io::IO, ::MIME"text/css", c::RGB) = (print(io, "rgb("); _tup(io, c); print(io, ")"))
-render(io::IO, ::MIME"text/latex", c::RGB) = (print(io, "[RGB]{"); _tup(io, c); print(io, "}"))
+render(io::IO, ::MIME"text/css", ::DefaultFormatter, c::RGB) = (print(io, "rgb("); _tup(io, c); print(io, ")"))
+render(io::IO, ::MIME"text/latex", ::DefaultFormatter, c::RGB) = (print(io, "[RGB]{"); _tup(io, c); print(io, "}"))
 
 _tup(io::IO, c::RGB) = print(io, Int(c.r), ",", Int(c.g), ",", Int(c.b))
 
 
 # Styles.
 
-function render(io::IO, mime::MIME"text/css", style::Style)
+function render(io::IO, mime::MIME"text/css", ::DefaultFormatter, style::Style)
     if style.fg.active
         print(io, "color: ")
         render(io, mime, style.fg)
@@ -66,7 +70,7 @@ function render(io::IO, mime::MIME"text/css", style::Style)
     return nothing
 end
 
-function render(io::IO, mime::MIME"text/latex", style::Style)
+function render(io::IO, mime::MIME"text/latex", ::DefaultFormatter, style::Style)
     print(io, "[1]{")
     if style.fg.active
         print(io, "\\textcolor")
@@ -93,7 +97,7 @@ end
 
 # Stylesheets.
 
-function render(io::IO, mime::MIME"text/css", theme::Theme)
+function render(io::IO, mime::MIME"text/css", ::DefaultFormatter, theme::Theme)
     print(io,
         """
         pre.hljl {
@@ -112,13 +116,13 @@ function render(io::IO, mime::MIME"text/css", theme::Theme)
     end
 end
 
-function render(io::IO, ::MIME"text/html", theme::Theme)
+function render(io::IO, ::MIME"text/html", ::DefaultFormatter, theme::Theme)
     println(io, "\n<style>")
     render(io, MIME"text/css"(), theme)
     println(io, "</style>\n")
 end
 
-function render(io::IO, mime::MIME"text/latex", theme::Theme)
+function render(io::IO, mime::MIME"text/latex", ::DefaultFormatter, theme::Theme)
     println(io, "\\usepackage[T1]{fontenc}")
     println(io, "\\usepackage{textcomp}")
     println(io, "\\usepackage{upquote}")
@@ -183,10 +187,10 @@ end
 
 # Code blocks.
 
-render(io::IO, mime::MIME, ctx::Context, theme::Theme) =
-    render(io, mime, TokenIterator(ctx, theme))
+render(io::IO, mime::MIME, formatter::AbstractFormatter, ctx::Context, theme::Theme) =
+    render(io, mime, formatter, TokenIterator(ctx, theme))
 
-function render(io::IO, mime::MIME"text/html", tokens::TokenIterator)
+function render(io::IO, mime::MIME"text/html", ::DefaultFormatter, tokens::TokenIterator)
     println(io, "<pre class='hljl'>")
     for (str, id, style) in tokens
         print(io, "<span class='hljl-")
@@ -197,7 +201,7 @@ function render(io::IO, mime::MIME"text/html", tokens::TokenIterator)
     println(io, "\n</pre>")
 end
 
-function render(io::IO, mime::MIME"text/latex", tokens::TokenIterator)
+function render(io::IO, mime::MIME"text/latex", ::DefaultFormatter, tokens::TokenIterator)
     println(io, "\\begin{lstlisting}")
     for (str, id, style) in tokens
         id === :t || print(io, "(*@\\HLJL", id, "{")

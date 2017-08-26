@@ -34,6 +34,13 @@ Represents a colour scheme used to highlight tokenised source code.
 """
 abstract AbstractTheme
 
+"""
+$(TYPEDEF)
+
+Represents a formatting strategy used by `render`
+"""
+abstract AbstractFormatter
+
 # Submodules.
 
 include("Tokens.jl")
@@ -97,11 +104,13 @@ julia> highlight(STDOUT, MIME("text/latex"), "'x'", Lexers.JuliaLexer, Themes.Vi
 function highlight{
         L <: AbstractLexer,
         T <: AbstractTheme,
+        F <: AbstractFormatter
     }(
         io::IO, mime::MIME, src::AbstractString,
         lexer::Type{L}, theme::Type{T} = Themes.DefaultTheme,
+        formatter::Type{F} = Format.DefaultFormatter
     )
-    Format.render(io, mime, Compiler.lex(src, L), Themes.theme(T))
+    Format.render(io, mime, formatter(), Compiler.lex(src, L), Themes.theme(T))
 end
 
 """
@@ -128,7 +137,14 @@ julia> stylesheet(buf, MIME("text/css"), Themes.EmacsTheme)
 
 ```
 """
-stylesheet{T <: AbstractTheme}(io::IO, mime::MIME, theme::Type{T} = Themes.DefaultTheme) =
-    Format.render(io, mime, Themes.theme(T))
+function stylesheet{
+        T <: AbstractTheme,
+        F <: AbstractFormatter
+    }(
+        io::IO, mime::MIME, theme::Type{T} = Themes.DefaultTheme,
+        formatter::Type{F} = Format.DefaultFormatter
+    )
+    Format.render(io, mime, formatter(), Themes.theme(T))
+end
 
 end # module
