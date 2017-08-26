@@ -25,14 +25,14 @@ $(TYPEDEF)
 
 Represents a source code lexer used to tokenise text.
 """
-abstract AbstractLexer
+abstract type AbstractLexer end
 
 """
 $(TYPEDEF)
 
 Represents a colour scheme used to highlight tokenised source code.
 """
-abstract AbstractTheme
+abstract type AbstractTheme end
 
 """
 $(TYPEDEF)

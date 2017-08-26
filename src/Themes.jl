@@ -135,7 +135,7 @@ must be a subtype of `AbstractTheme`.
 ```jldoctest
 julia> using Highlights.Themes
 
-julia> abstract CustomTheme <: AbstractTheme
+julia> abstract type CustomTheme <: AbstractTheme end
 
 julia> @theme CustomTheme Dict(
            :name => "Custom",
@@ -172,26 +172,26 @@ export
     XcodeTheme
 
 "The default colour scheme with colours based on the Julia logo."
-abstract DefaultTheme <: AbstractTheme
+abstract type DefaultTheme <: AbstractTheme end
 
 "A theme based on the Emacs colour scheme."
-abstract EmacsTheme <: AbstractTheme
+abstract type EmacsTheme <: AbstractTheme end
 "A GitHub inspired colour scheme."
-abstract GitHubTheme <: AbstractTheme
+abstract type GitHubTheme <: AbstractTheme end
 "A colour scheme similar to the Monokai theme."
-abstract MonokaiTheme <: AbstractTheme
+abstract type MonokaiTheme <: AbstractTheme end
 "Based on the default colour scheme used by the Pygments highlighter."
-abstract PygmentsTheme <: AbstractTheme
+abstract type PygmentsTheme <: AbstractTheme end
 "A Tango-inspired colour scheme."
-abstract TangoTheme <: AbstractTheme
+abstract type TangoTheme <: AbstractTheme end
 "Based on the default trac highlighter."
-abstract TracTheme <: AbstractTheme
+abstract type TracTheme <: AbstractTheme end
 "A Vim 7.0 based colour scheme."
-abstract VimTheme <: AbstractTheme
+abstract type VimTheme <: AbstractTheme end
 "A theme based on the default Visual Studio colours."
-abstract VisualStudioTheme <: AbstractTheme
+abstract type VisualStudioTheme <: AbstractTheme end
 "A theme based on the default Xcode colour scheme."
-abstract XcodeTheme <: AbstractTheme
+abstract type XcodeTheme <: AbstractTheme end
 
 
 # Theme definitions.
